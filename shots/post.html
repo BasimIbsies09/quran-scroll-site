@@ -3,7 +3,7 @@
   const names = ['1-reader.png','2-discover.png','3-study.png','4-plans.png','5-dark.png','6-home.png'];
   const target = window.parent !== window ? window.parent : window.opener;
   for (const n of names) {
-    const r = await fetch(n); const buf = await r.arrayBuffer();
+    const r = await fetch(n + '?v=' + Date.now(), {cache: 'no-store'}); const buf = await r.arrayBuffer();
     target.postMessage({type: 'shot', name: n, buf}, '*', [buf]);
   }
   target.postMessage({type: 'done'}, '*');
