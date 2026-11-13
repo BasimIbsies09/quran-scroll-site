@@ -5,5 +5,5 @@ Static site for https://quranscrollapp.com/ (SMS waitlist landing page, Privacy 
 Source of truth is the `site/` folder of the private `ScrollTheQuran` repo. Deploy by pushing that folder to the public `quran-scroll-site` repo (GitHub Pages serves `main` at `/`):
 
 ```bash
-git subtree push --prefix site https://github.com/BasimIbsies09/quran-scroll-site.git main
+scripts/deploy-site.sh
 ```
