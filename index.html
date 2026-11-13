@@ -8,7 +8,11 @@
 <meta name="theme-color" content="#0F4C3A">
 <meta property="og:title" content="Stop doom scrolling. Scroll the Quran.">
 <meta property="og:description" content="Same thumb motion. Completely different heart. Join the waitlist for 6 months of Pro, free.">
-<meta property="og:image" content="icon.png">
+<meta property="og:image" content="https://quranscrollapp.com/icon.png">
+<meta property="og:url" content="https://quranscrollapp.com/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://quranscrollapp.com/">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -368,7 +372,7 @@
         <div class="step reveal"><div class="k">2</div><h3>We text you at launch</h3><p>The day Quran Scroll lands on the App Store, you get a text with the download link.</p></div>
         <div class="step reveal"><div class="k">3</div><h3>Open your gift</h3><p>Your text includes a code for 6 months of Quran Scroll Pro, free. Redeem it in the App Store in one tap.</p></div>
       </div>
-      <a class="btn" href="#join" data-focus>Join the waitlist</a>
+      <a class="btn" href="#join" data-focus>Get 6 months free</a>
     </div>
   </section>
 
@@ -539,7 +543,7 @@
   $('again').addEventListener('click', () => { $('done').hidden = true; form.hidden = false; input.value = ''; input.focus(); });
 
   $('share').addEventListener('click', async () => {
-    const data = { title: 'Quran Scroll', text: 'Scroll the Quran, one ayah at a time. Join the waitlist and get 6 months of Pro free:', url: location.origin + location.pathname };
+    const data = { title: 'Quran Scroll', text: 'Stop doom scrolling. Scroll the Quran. Join the waitlist and get 6 months of Pro free:', url: 'https://quranscrollapp.com/' };
     if (navigator.share) { navigator.share(data).catch(() => {}); return; }
     try { await navigator.clipboard.writeText(`${data.text} ${data.url}`); $('share').lastChild.textContent = ' Link copied'; } catch (_) {}
   });
