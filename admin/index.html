@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Waitlist Dashboard</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F0; --surface: #FFFFFF; --surface2: #F3EEE2; --border: #E6DFCF;
+    --ink: #10231C; --ink2: #3C4F47; --ink3: #6F7F78; --grid: #EDE7DA;
+    --accent: #0F4C3A; --accentInk: #FFFFFF; --bar: #176A51; --barHover: #0F4C3A; --gold: #9A7A2E;
+    --good: #1F7A55; --muted: #7A8A83; --warn: #B04732;
+    --display: "Cormorant Garamond", Georgia, serif;
+    --body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0B1F19; --surface: #123129; --surface2: #173B31; --border: #1F4A3E;
+      --ink: #F3EEE2; --ink2: #C9D3CC; --ink3: #8CA096; --grid: #1C443A;
+      --accent: #C8A557; --accentInk: #07231B; --bar: #C8A557; --barHover: #E3CC8E; --gold: #E3CC8E;
+      --good: #7FC8A9; --muted: #8CA096; --warn: #E07A66;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 56px; }
+  button, input { font: inherit; color: inherit; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  header { display: flex; align-items: center; gap: 12px; padding: 18px 0; flex-wrap: wrap; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; background: #0F4C3A; display: grid; place-items: center; flex: none; }
+  header h1 { font: 700 24px/1 var(--display); margin: 0; }
+  .meta { color: var(--ink3); font-size: 13px; }
+  .live { display: inline-flex; align-items: center; gap: 6px; }
+  .live::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 3px color-mix(in srgb, var(--good) 22%, transparent); }
+  .spacer { flex: 1; }
+  .btn { height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+  .btn:hover { background: var(--surface2); }
+  .btn.primary { background: var(--accent); color: var(--accentInk); border-color: transparent; }
+
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; }
+  .tile .k { font-size: 13px; color: var(--ink2); font-weight: 500; }
+  .tile .v { font: 700 34px/1.1 var(--body); margin-top: 6px; letter-spacing: -.01em; }
+  .tile .s { font-size: 12.5px; color: var(--ink3); margin-top: 2px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-top: 12px; }
+  .card h2 { font: 600 15px/1.3 var(--body); margin: 0; }
+  .card .sub { color: var(--ink3); font-size: 13px; margin: 2px 0 0; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row2 .card { margin-top: 12px; }
+
+  /* Daily bar chart */
+  .chart { position: relative; margin-top: 14px; height: 200px; }
+  .chart svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .chart .gl { stroke: var(--grid); stroke-width: 1; }
+  .chart .al { fill: var(--ink3); font-size: 11px; font-family: var(--body); }
+  .chart .bar { fill: var(--bar); }
+  .chart .hit { fill: transparent; cursor: default; }
+  .chart .hit:hover + .bar, .chart g.on .bar { fill: var(--barHover); }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12.5px; padding: 6px 9px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, -100%); margin-top: -8px; opacity: 0; transition: opacity .1s; }
+  .tip b { font-weight: 700; }
+
+  /* Ranked lists */
+  .rank { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  .rank li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; font-size: 14px; }
+  .rank .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank .cnt { color: var(--ink2); font-weight: 600; }
+  .rank .track { grid-column: 1 / -1; height: 6px; border-radius: 4px; background: var(--surface2); overflow: hidden; }
+  .rank .fill { height: 100%; border-radius: 4px; background: var(--bar); }
+  .empty { color: var(--ink3); font-size: 14px; padding: 18px 0 4px; }
+
+  /* Table */
+  .tbar { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .search { flex: 1; min-width: 160px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); padding: 0 12px; }
+  .tablewrap { overflow-x: auto; margin: 12px -18px -18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 18px; border-top: 1px solid var(--border); white-space: nowrap; }
+  th { font-size: 12px; font-weight: 600; color: var(--ink3); text-transform: uppercase; letter-spacing: .06em; background: var(--surface); }
+  td.ph { font-weight: 600; }
+  tr.new td { animation: flash 2.4s ease; }
+  @keyframes flash { from { background: color-mix(in srgb, var(--gold) 28%, transparent); } to { background: transparent; } }
+  .pill { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--ink2); }
+  .pill.out { color: var(--warn); }
+  .pill.red { color: var(--good); }
+  .more { margin-top: 16px; text-align: center; }
+
+  .alerts { display: flex; gap: 14px; align-items: flex-start; }
+  .alerts code { background: var(--surface2); border: 1px solid var(--border); padding: 2px 7px; border-radius: 6px; font-size: 13px; user-select: all; }
+  .alerts ol { margin: 8px 0 0; padding-left: 18px; color: var(--ink2); font-size: 14px; }
+  .alerts li { margin: 3px 0; }
+
+  /* Lock screen */
+  .lock { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+  .lock form { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 26px 22px; text-align: center; }
+  .lock h1 { font: 700 28px/1.1 var(--display); margin: 14px 0 6px; }
+  .lock p { color: var(--ink2); margin: 0 0 18px; font-size: 14px; }
+  .lock input { width: 100%; height: 50px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); padding: 0 14px; font-size: 16px; }
+  .lock input:focus { outline: none; border-color: var(--accent); }
+  .lock .btn { width: 100%; height: 50px; justify-content: center; margin-top: 10px; font-size: 16px; border-radius: 12px; }
+  .lock .err { color: var(--warn); font-size: 14px; margin: 10px 0 0; min-height: 1em; }
+
+  .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translate(-50%, calc(100% + 40px)); background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 12px; font-weight: 600; font-size: 14px; transition: transform .25s ease; z-index: 5; }
+  .toast.show { transform: translate(-50%, 0); }
+
+  @media (max-width: 760px) {
+    .tiles { grid-template-columns: 1fr 1fr; }
+    .row2 { grid-template-columns: 1fr; gap: 0; }
+    .tile .v { font-size: 28px; }
+    .chart { height: 170px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lock" id="lock" hidden>
+  <form id="unlock">
+    <div class="logo" style="margin:0 auto;width:52px;height:52px;border-radius:14px"><svg width="34" height="34" viewBox="0 0 100 100"><path d="M55 23.38 A30 30 0 1 0 72.25 66.52 A23.4 23.4 0 0 1 55 23.38 Z" fill="#FAF7F0"/><polygon points="70,25 71.99,30.7 77.42,28.08 74.8,33.51 80.5,35.5 74.8,37.49 77.42,42.92 71.99,40.3 70,46 68.01,40.3 62.58,42.92 65.2,37.49 59.5,35.5 65.2,33.51 62.58,28.08 68.01,30.7" fill="#C8A557"/></svg></div>
+    <h1>Waitlist dashboard</h1>
+    <p>Enter your admin token. It stays on this device.</p>
+    <label for="token" style="position:absolute;left:-9999px">Admin token</label>
+    <input id="token" type="password" autocomplete="current-password" placeholder="Admin token" required>
+    <button class="btn primary" type="submit" id="unlock-btn">Unlock</button>
+    <p class="err" id="lock-err" role="alert"></p>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <span class="logo"><svg width="24" height="24" viewBox="0 0 100 100"><path d="M55 23.38 A30 30 0 1 0 72.25 66.52 A23.4 23.4 0 0 1 55 23.38 Z" fill="#FAF7F0"/><polygon points="70,25 71.99,30.7 77.42,28.08 74.8,33.51 80.5,35.5 74.8,37.49 77.42,42.92 71.99,40.3 70,46 68.01,40.3 62.58,42.92 65.2,37.49 59.5,35.5 65.2,33.51 62.58,28.08 68.01,30.7" fill="#C8A557"/></svg></span>
+    <div>
+      <h1>Waitlist</h1>
+      <div class="meta"><span class="live" id="updated">Loading…</span></div>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn" id="notify" type="button" hidden>🔔 Desktop alerts</button>
+    <button class="btn" id="refresh" type="button">Refresh</button>
+    <button class="btn" id="export" type="button">Export CSV</button>
+    <button class="btn" id="logout" type="button" title="Forget the token on this device">Lock</button>
+  </header>
+
+  <section class="tiles" aria-label="Totals">
+    <div class="tile"><div class="k">Total sign-ups</div><div class="v num" id="t-total">–</div><div class="s" id="t-total-s">&nbsp;</div></div>
+    <div class="tile"><div class="k">Today</div><div class="v num" id="t-today">–</div><div class="s" id="t-today-s">&nbsp;</div></div>
+    <div class="tile"><div class="k">Last 7 days</div><div class="v num" id="t-week">–</div><div class="s" id="t-week-s">&nbsp;</div></div>
+    <div class="tile"><div class="k">Textable</div><div class="v num" id="t-active">–</div><div class="s" id="t-active-s">&nbsp;</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Sign-ups per day</h2>
+    <p class="sub">Last 30 days, your local time</p>
+    <div class="chart" id="chart"><div class="tip" id="tip"></div></div>
+  </section>
+
+  <div class="row2">
+    <section class="card"><h2>Countries</h2><ul class="rank" id="countries"></ul></section>
+    <section class="card"><h2>Sources</h2><p class="sub">From utm_source, ref, or the referring site</p><ul class="rank" id="sources"></ul></section>
+  </div>
+
+  <section class="card">
+    <h2>Sign-ups</h2>
+    <div class="tbar">
+      <input class="search" id="search" type="search" placeholder="Search number, country or source" aria-label="Search sign-ups">
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>When</th><th>Phone</th><th>Country</th><th>Source</th><th>Status</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="more" id="more" hidden><button class="btn" type="button" id="more-btn">Show all</button></div>
+  </section>
+
+  <section class="card alerts">
+    <div>
+      <h2>Phone alerts</h2>
+      <p class="sub">With this page open, new sign-ups show a toast and, if allowed, a desktop notification. Phone alerts below.</p>
+      <ol>
+        <li>Install <strong>ntfy</strong> from the App Store (free, no account).</li>
+        <li>Tap <strong>+</strong>, subscribe to topic <code id="topic">…</code> on server <code>ntfy.sh</code>.</li>
+        <li>Allow notifications. Each alert shows the last 4 digits, country, source and running total.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const SUPABASE_URL = 'https://tegznesegnhlqjtiwdjn.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZ3puZXNlZ25obHFqdGl3ZGpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzNzQ0MjgsImV4cCI6MjEwODk1MDQyOH0.qWrpiGBBnfuHV3Eirr9G8RyZvKoXATshtyw-zesMVv4';
+  const KEY = 'qs-admin-token';
+  const REFRESH_MS = 30000;
+  const FLAGS = { US:'🇺🇸',CA:'🇨🇦',GB:'🇬🇧',AU:'🇦🇺',NZ:'🇳🇿',IE:'🇮🇪',AE:'🇦🇪',SA:'🇸🇦',QA:'🇶🇦',KW:'🇰🇼',BH:'🇧🇭',OM:'🇴🇲',JO:'🇯🇴',PS:'🇵🇸',LB:'🇱🇧',SY:'🇸🇾',IQ:'🇮🇶',EG:'🇪🇬',MA:'🇲🇦',DZ:'🇩🇿',TN:'🇹🇳',LY:'🇱🇾',SD:'🇸🇩',SO:'🇸🇴',TR:'🇹🇷',PK:'🇵🇰',IN:'🇮🇳',BD:'🇧🇩',AF:'🇦🇫',ID:'🇮🇩',MY:'🇲🇾',SG:'🇸🇬',NG:'🇳🇬',KE:'🇰🇪',ZA:'🇿🇦',FR:'🇫🇷',DE:'🇩🇪',NL:'🇳🇱',BE:'🇧🇪',SE:'🇸🇪',NO:'🇳🇴',DK:'🇩🇰',IT:'🇮🇹',ES:'🇪🇸',BA:'🇧🇦',AL:'🇦🇱' };
+  const regionName = (() => { try { const d = new Intl.DisplayNames(['en'], { type: 'region' }); return (c) => d.of(c) || c; } catch (_) { return (c) => c; } })();
+
+  const $ = (id) => document.getElementById(id);
+  const store = {
+    get() { try { return localStorage.getItem(KEY); } catch (_) { return null; } },
+    set(v) { try { localStorage.setItem(KEY, v); } catch (_) {} },
+    clear() { try { localStorage.removeItem(KEY); } catch (_) {} },
+  };
+  // A link like /admin/#t=<token> unlocks once, then the token is removed from the URL.
+  const hashToken = new URLSearchParams(location.hash.slice(1)).get('t');
+  if (hashToken) { store.set(hashToken); history.replaceState(null, '', location.pathname + location.search); }
+  let token = hashToken || store.get();
+  let rows = [];
+  let seen = null;      // phones seen on the previous load, to flag new ones
+  let showAll = false;
+  let timer = null;
+
+  async function fetchData(t) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/waitlist_admin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ p_token: t }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      const err = new Error(String(body.message || res.status));
+      err.unauthorized = String(body.message || '').includes('unauthorized');
+      throw err;
+    }
+    return res.json();
+  }
+
+  function showLock(msg) {
+    clearInterval(timer);
+    $('app').hidden = true; $('lock').hidden = false;
+    $('lock-err').textContent = msg || '';
+    setTimeout(() => $('token').focus(), 50);
+  }
+
+  $('unlock').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const t = $('token').value.trim();
+    if (!t) return;
+    $('unlock-btn').disabled = true; $('lock-err').textContent = '';
+    try {
+      const data = await fetchData(t);
+      token = t; store.set(t);
+      start(data);
+    } catch (err) {
+      $('lock-err').textContent = err.unauthorized ? 'That token is not right.' : 'Could not reach the database. Try again.';
+    } finally { $('unlock-btn').disabled = false; }
+  });
+
+  function start(data) {
+    $('lock').hidden = true; $('app').hidden = false;
+    render(data);
+    clearInterval(timer);
+    timer = setInterval(load, REFRESH_MS);
+  }
+
+  async function load() {
+    try { render(await fetchData(token)); }
+    catch (err) {
+      if (err.unauthorized) { store.clear(); token = null; showLock('Token no longer valid.'); }
+      else $('updated').textContent = 'Offline, retrying…';
+    }
+  }
+
+  // ---------- rendering ----------
+  const fmtPhone = (p) => /^\+1\d{10}$/.test(p) ? `+1 (${p.slice(2,5)}) ${p.slice(5,8)}-${p.slice(8)}` : p;
+  const dayKey = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const n = (x) => x.toLocaleString();
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  function ago(d) {
+    const s = (Date.now() - d) / 1000;
+    if (s < 60) return 'just now';
+    if (s < 3600) return `${Math.floor(s/60)}m ago`;
+    if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+    if (s < 86400*7) return `${Math.floor(s/86400)}d ago`;
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  function render(data) {
+    $('topic').textContent = data.ntfy_topic || 'not set';
+    rows = (data.rows || []).map((r) => ({ ...r, at: new Date(r.created_at) }));
+
+    const fresh = seen ? rows.filter((r) => !seen.has(r.phone)) : [];
+    seen = new Set(rows.map((r) => r.phone));
+    if (fresh.length) {
+      toast(`${fresh.length} new sign-up${fresh.length > 1 ? 's' : ''}`);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try { new Notification('New waitlist sign-up', { body: fresh.map((r) => `•••${r.phone.slice(-4)} · ${r.country || '?'}${r.source ? ' · via ' + r.source : ''}`).join('\n') + `  (${rows.length} total)`, icon: '../apple-touch-icon.png' }); } catch (_) {}
+      }
+      document.title = `(${fresh.length}) Waitlist Dashboard`;
+    }
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yStart = new Date(todayStart); yStart.setDate(yStart.getDate() - 1);
+    const wStart = new Date(todayStart); wStart.setDate(wStart.getDate() - 6);
+    const pwStart = new Date(wStart); pwStart.setDate(pwStart.getDate() - 7);
+
+    const today = rows.filter((r) => r.at >= todayStart).length;
+    const yesterday = rows.filter((r) => r.at >= yStart && r.at < todayStart).length;
+    const week = rows.filter((r) => r.at >= wStart).length;
+    const prevWeek = rows.filter((r) => r.at >= pwStart && r.at < wStart).length;
+    const out = rows.filter((r) => r.opted_out_at).length;
+
+    $('t-total').textContent = n(rows.length);
+    $('t-total-s').textContent = rows.length ? `First on ${rows[rows.length-1].at.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : 'No sign-ups yet';
+    $('t-today').textContent = n(today);
+    $('t-today-s').textContent = `${n(yesterday)} yesterday`;
+    $('t-week').textContent = n(week);
+    $('t-week-s').textContent = `${n(prevWeek)} the week before`;
+    $('t-active').textContent = n(rows.length - out);
+    $('t-active-s').textContent = out ? `${n(out)} replied STOP` : 'No opt-outs';
+
+    $('updated').textContent = `Live · updated ${now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' })}`;
+
+    renderChart(todayStart);
+    renderRank('countries', rows.map((r) => r.country || '?'), (c) => c === '?' ? 'Unknown' : `${FLAGS[c] || ''} ${regionName(c)}`);
+    renderRank('sources', rows.map((r) => r.source || 'direct'), (s) => s === 'direct' ? 'Direct / unknown' : s);
+    renderTable(new Set(fresh.map((r) => r.phone)));
+  }
+
+  function renderChart(todayStart) {
+    const days = [];
+    for (let i = 29; i >= 0; i--) { const d = new Date(todayStart); d.setDate(d.getDate() - i); days.push({ d, k: dayKey(d), v: 0 }); }
+    const idx = Object.fromEntries(days.map((x, i) => [x.k, i]));
+    rows.forEach((r) => { const i = idx[dayKey(r.at)]; if (i !== undefined) days[i].v++; });
+
+    const el = $('chart');
+    const W = el.clientWidth || 600, H = el.clientHeight || 200;
+    const L = 28, R = 4, T = 8, B = 22;
+    const iw = W - L - R, ih = H - T - B;
+    const max = Math.max(...days.map((x) => x.v));
+    const step = max <= 4 ? 1 : max <= 10 ? 2 : max <= 25 ? 5 : max <= 50 ? 10 : Math.ceil(max / 5 / 10) * 10;
+    const top = Math.max(step * Math.ceil(max / step), step * 2);
+    const y = (v) => T + ih - (v / top) * ih;
+    const slot = iw / days.length, gap = 2, bw = Math.max(2, slot - gap);
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sign-ups per day, last 30 days">`;
+    for (let v = 0; v <= top; v += step) {
+      svg += `<line class="gl" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/>`;
+      svg += `<text class="al" x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    }
+    days.forEach((x, i) => {
+      const bx = L + i * slot + gap / 2, h = (x.v / top) * ih, by = T + ih - h;
+      const r = Math.min(4, bw / 2, h);
+      const path = h > 0
+        ? `M${bx},${T + ih} V${by + r} Q${bx},${by} ${bx + r},${by} H${bx + bw - r} Q${bx + bw},${by} ${bx + bw},${by + r} V${T + ih} Z`
+        : '';
+      const label = x.d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+      svg += `<g data-i="${i}"><rect class="hit" x="${L + i * slot}" y="${T}" width="${slot}" height="${ih}" aria-label="${esc(label)}: ${x.v}"/>${path ? `<path class="bar" d="${path}"/>` : ''}</g>`;
+      if (i % 7 === 1 || i === 29) {
+        svg += `<text class="al" x="${bx + bw / 2}" y="${H - 4}" text-anchor="middle">${i === 29 ? 'Today' : x.d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</text>`;
+      }
+    });
+    svg += '</svg>';
+    el.innerHTML = svg + '<div class="tip" id="tip"></div>';
+
+    const tip = $('tip');
+    el.querySelectorAll('g[data-i]').forEach((g) => {
+      const i = +g.dataset.i, x = days[i];
+      g.addEventListener('mouseenter', () => {
+        g.classList.add('on');
+        tip.innerHTML = `<b>${x.v}</b> sign-up${x.v === 1 ? '' : 's'} · ${esc(x.d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }))}`;
+        tip.style.left = `${((L + i * slot + slot / 2) / W) * 100}%`;
+        tip.style.top = `${(Math.min(y(x.v), T + ih - 2) / H) * 100}%`;
+        tip.style.opacity = 1;
+      });
+      g.addEventListener('mouseleave', () => { g.classList.remove('on'); tip.style.opacity = 0; });
+    });
+  }
+
+  function renderRank(id, values, label) {
+    const counts = {};
+    values.forEach((v) => { counts[v] = (counts[v] || 0) + 1; });
+    let list = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    if (list.length > 8) {
+      const rest = list.slice(7).reduce((s, [, c]) => s + c, 0);
+      list = [...list.slice(0, 7), ['__other', rest]];
+    }
+    const max = list.length ? list[0][1] : 0;
+    $(id).innerHTML = list.length
+      ? list.map(([k, c]) => `<li><span class="lbl">${esc(k === '__other' ? 'Other' : label(k))}</span><span class="cnt num">${n(c)}</span><span class="track"><span class="fill" style="width:${Math.max(2, (c / max) * 100)}%"></span></span></li>`).join('')
+      : '<li class="empty">Nothing yet</li>';
+  }
+
+  function renderTable(freshSet) {
+    const q = $('search').value.trim().toLowerCase();
+    const qd = q.replace(/\D/g, '');
+    const filtered = q ? rows.filter((r) =>
+      (qd && r.phone.includes(qd)) || (r.country || '').toLowerCase().includes(q) ||
+      regionName(r.country || '').toLowerCase().includes(q) || (r.source || '').toLowerCase().includes(q)) : rows;
+    const shown = showAll || q ? filtered : filtered.slice(0, 50);
+    $('more').hidden = showAll || q || filtered.length <= 50;
+    $('rows').innerHTML = shown.length ? shown.map((r) => `
+      <tr class="${freshSet && freshSet.has(r.phone) ? 'new' : ''}">
+        <td title="${esc(r.at.toLocaleString())}">${esc(ago(r.at))}</td>
+        <td class="ph num">${esc(fmtPhone(r.phone))}</td>
+        <td>${esc(r.country ? `${FLAGS[r.country] || ''} ${r.country}` : '—')}</td>
+        <td>${esc(r.source || '—')}</td>
+        <td>${r.opted_out_at ? '<span class="pill out">✕ Opted out</span>' : r.redeemed_at ? '<span class="pill red">✓ Redeemed</span>' : '<span class="pill">● On list</span>'}</td>
+      </tr>`).join('') : `<tr><td colspan="5" class="empty" style="padding:18px">${q ? 'No matches' : 'No sign-ups yet. Share quranscrollapp.com to get the first one.'}</td></tr>`;
+  }
+
+  function toast(msg) {
+    const t = $('toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ---------- controls ----------
+  $('search').addEventListener('input', () => renderTable());
+  $('more-btn').addEventListener('click', () => { showAll = true; renderTable(); });
+  $('refresh').addEventListener('click', load);
+  $('logout').addEventListener('click', () => { store.clear(); token = null; seen = null; $('token').value = ''; showLock(); });
+  window.addEventListener('focus', () => { document.title = 'Waitlist Dashboard'; if (token) load(); });
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (rows && !$('app').hidden) renderChart(new Date(new Date().setHours(0,0,0,0))); }, 150); });
+
+  $('export').addEventListener('click', () => {
+    const cell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const lines = [['phone','country','source','signed_up_at','opted_out_at','redeemed_at'].join(',')]
+      .concat(rows.map((r) => [r.phone, r.country, r.source, r.created_at, r.opted_out_at, r.redeemed_at].map(cell).join(',')));
+    const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `quran-scroll-waitlist-${dayKey(new Date())}.csv`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  // Browser notifications while this tab is open.
+  function syncNotifyBtn() {
+    const b = $('notify');
+    if (!('Notification' in window)) return;
+    b.hidden = Notification.permission === 'granted' || Notification.permission === 'denied';
+  }
+  $('notify').addEventListener('click', () => Notification.requestPermission().then(syncNotifyBtn));
+  syncNotifyBtn();
+
+  // ---------- boot ----------
+  if (token) {
+    fetchData(token).then(start).catch((err) => {
+      if (err.unauthorized) { store.clear(); token = null; }
+      showLock(err.unauthorized ? '' : 'Could not reach the database. Try again.');
+    });
+  } else showLock();
+})();
+</script>
+</body>
+</html>
