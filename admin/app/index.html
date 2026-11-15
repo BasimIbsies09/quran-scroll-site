@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>App Analytics</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
+<link rel="apple-touch-icon" href="../../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F0; --surface: #FFFFFF; --surface2: #F3EEE2; --border: #E6DFCF;
+    --ink: #10231C; --ink2: #3C4F47; --ink3: #6F7F78; --grid: #EDE7DA;
+    --accent: #0F4C3A; --accentInk: #FFFFFF; --gold: #9A7A2E;
+    --s1: #0E7A55; --s2: #B8862B; --heat: 14, 122, 85;
+    --good: #1F7A55; --warn: #B04732;
+    --display: "Cormorant Garamond", Georgia, serif;
+    --body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0B1F19; --surface: #123129; --surface2: #173B31; --border: #1F4A3E;
+      --ink: #F3EEE2; --ink2: #C9D3CC; --ink3: #8CA096; --grid: #1C443A;
+      --accent: #C8A557; --accentInk: #07231B; --gold: #E3CC8E;
+      --s1: #33A878; --s2: #BA8A2C; --heat: 51, 168, 120;
+      --good: #7FC8A9; --warn: #E07A66;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 56px; }
+  button, input, select { font: inherit; color: inherit; }
+  .num { font-variant-numeric: tabular-nums; }
+  a { color: inherit; }
+
+  header { display: flex; align-items: center; gap: 12px; padding: 18px 0; flex-wrap: wrap; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; background: #0F4C3A; display: grid; place-items: center; flex: none; }
+  header h1 { font: 700 24px/1 var(--display); margin: 0; }
+  .meta { color: var(--ink3); font-size: 13px; }
+  .spacer { flex: 1; }
+  .btn { height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+  .btn:hover { background: var(--surface2); }
+  .btn.primary { background: var(--accent); color: var(--accentInk); border-color: transparent; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .seg button { height: 34px; padding: 0 12px; border: 0; background: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink2); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accentInk); }
+
+  .note { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; font-size: 13.5px; color: var(--ink2); margin-bottom: 12px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; }
+  .tile .k { font-size: 13px; color: var(--ink2); font-weight: 500; }
+  .tile .v { font: 700 32px/1.1 var(--body); margin-top: 6px; letter-spacing: -.01em; }
+  .tile .s { font-size: 12.5px; color: var(--ink3); margin-top: 2px; }
+  .up { color: var(--good); } .down { color: var(--warn); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-top: 12px; min-width: 0; }
+  .card h2 { font: 600 15px/1.3 var(--body); margin: 0; }
+  .card .sub { color: var(--ink3); font-size: 13px; margin: 2px 0 0; }
+  .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+  .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+  .legend { display: flex; gap: 16px; font-size: 13px; color: var(--ink2); margin-top: 10px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+  .chart { position: relative; margin-top: 10px; height: 210px; }
+  .chart svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .gl { stroke: var(--grid); stroke-width: 1; }
+  .al { fill: var(--ink3); font-size: 11px; font-family: var(--body); }
+  .chart g.col:hover rect.m, .chart g.col.on rect.m { filter: brightness(1.12); }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12.5px; padding: 7px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, -100%); margin-top: -8px; opacity: 0; transition: opacity .1s; z-index: 3; line-height: 1.45; }
+
+  .rank { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  .rank li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; font-size: 14px; }
+  .rank .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank .cnt { color: var(--ink2); font-weight: 600; }
+  .rank .cnt small { color: var(--ink3); font-weight: 500; margin-left: 6px; }
+  .rank .track { grid-column: 1 / -1; height: 6px; border-radius: 4px; background: var(--surface2); overflow: hidden; }
+  .rank .fill { height: 100%; border-radius: 4px; background: var(--s1); }
+  .empty { color: var(--ink3); font-size: 14px; padding: 14px 0 2px; }
+
+  .tablewrap { overflow-x: auto; margin: 12px -18px -18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-top: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { padding-left: 18px; }
+  th { font-size: 11.5px; font-weight: 600; color: var(--ink3); text-transform: uppercase; letter-spacing: .06em; }
+  td.r, th.r { text-align: right; }
+  td.heat { text-align: center; font-weight: 600; min-width: 54px; border-left: 2px solid var(--surface); }
+  td.na { color: var(--ink3); text-align: center; }
+  td.wrapc { white-space: normal; max-width: 520px; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; }
+
+  .dn { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  .dn div { background: var(--surface2); border-radius: 12px; padding: 12px; text-align: center; }
+  .dn b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+  .dn span { font-size: 12.5px; color: var(--ink3); }
+
+  .lock { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+  .lock form { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 26px 22px; text-align: center; }
+  .lock h1 { font: 700 28px/1.1 var(--display); margin: 14px 0 6px; }
+  .lock p { color: var(--ink2); margin: 0 0 18px; font-size: 14px; }
+  .lock input { width: 100%; height: 50px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); padding: 0 14px; font-size: 16px; }
+  .lock .btn { width: 100%; height: 50px; justify-content: center; margin-top: 10px; font-size: 16px; border-radius: 12px; }
+  .lock .err { color: var(--warn); font-size: 14px; margin: 10px 0 0; min-height: 1em; }
+
+  @media (max-width: 860px) {
+    header .spacer { display: none; }
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .row2, .row3 { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .tile .v { font-size: 26px; }
+    .dn, #sessions { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lock" id="lock" hidden>
+  <form id="unlock">
+    <div class="logo" style="margin:0 auto;width:52px;height:52px;border-radius:14px"><svg width="34" height="34" viewBox="0 0 100 100"><path d="M55 23.38 A30 30 0 1 0 72.25 66.52 A23.4 23.4 0 0 1 55 23.38 Z" fill="#FAF7F0"/><polygon points="70,25 71.99,30.7 77.42,28.08 74.8,33.51 80.5,35.5 74.8,37.49 77.42,42.92 71.99,40.3 70,46 68.01,40.3 62.58,42.92 65.2,37.49 59.5,35.5 65.2,33.51 62.58,28.08 68.01,30.7" fill="#C8A557"/></svg></div>
+    <h1>App analytics</h1>
+    <p>Enter your admin token. It stays on this device.</p>
+    <label for="token" style="position:absolute;left:-9999px">Admin token</label>
+    <input id="token" type="password" autocomplete="current-password" placeholder="Admin token" required>
+    <button class="btn primary" type="submit" id="unlock-btn">Unlock</button>
+    <p class="err" id="lock-err" role="alert"></p>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <span class="logo"><svg width="24" height="24" viewBox="0 0 100 100"><path d="M55 23.38 A30 30 0 1 0 72.25 66.52 A23.4 23.4 0 0 1 55 23.38 Z" fill="#FAF7F0"/><polygon points="70,25 71.99,30.7 77.42,28.08 74.8,33.51 80.5,35.5 74.8,37.49 77.42,42.92 71.99,40.3 70,46 68.01,40.3 62.58,42.92 65.2,37.49 59.5,35.5 65.2,33.51 62.58,28.08 68.01,30.7" fill="#C8A557"/></svg></span>
+    <div>
+      <h1>App analytics</h1>
+      <div class="meta" id="updated">Loading…</div>
+    </div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Date range">
+      <button type="button" data-days="7">7d</button><button type="button" data-days="30" aria-pressed="true">30d</button><button type="button" data-days="90">90d</button>
+    </div>
+    <button class="btn" id="refresh" type="button">Refresh</button>
+    <a class="btn" href="../">Waitlist</a>
+    <button class="btn" id="logout" type="button" title="Forget the token on this device">Lock</button>
+  </header>
+
+  <p class="note" id="note" hidden></p>
+
+  <section class="tiles" aria-label="Headline numbers">
+    <div class="tile"><div class="k">Active today</div><div class="v num" id="t-dau">–</div><div class="s" id="t-dau-s">&nbsp;</div></div>
+    <div class="tile"><div class="k">Active last 7 days</div><div class="v num" id="t-wau">–</div><div class="s" id="t-wau-s">&nbsp;</div></div>
+    <div class="tile"><div class="k">Active last 30 days</div><div class="v num" id="t-mau">–</div><div class="s" id="t-mau-s">&nbsp;</div></div>
+    <div class="tile"><div class="k">Pro</div><div class="v num" id="t-pro">–</div><div class="s" id="t-pro-s">&nbsp;</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Daily active users</h2>
+    <p class="sub">Installs that opened the app each day, split by first day vs. coming back</p>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Returning</span><span><i style="background:var(--s2)"></i>New</span></div>
+    <div class="chart" id="chart"><div class="tip" id="tip"></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Retention</h2>
+    <p class="sub">Share of installs that came back exactly N days after their first day. Only installs old enough to have reached day N count.</p>
+    <div class="dn" id="dayn"></div>
+  </section>
+
+  <section class="card">
+    <h2>Weekly cohorts</h2>
+    <p class="sub">Installs grouped by the week they started, then the share active in each later week. Hover a cell for counts.</p>
+    <div class="tablewrap"><table id="cohorts"></table></div>
+  </section>
+
+  <div class="row2">
+    <section class="card"><h2>Onboarding funnel</h2><p class="sub">Installs that reached each screen, and finished</p><ul class="rank" id="funnel"></ul></section>
+    <section class="card"><h2>Paywall and purchases</h2><p class="sub">Paywall shows, results and purchase outcomes</p><div class="tablewrap"><table id="paywall"></table></div></section>
+  </div>
+
+  <section class="card">
+    <h2>Sessions</h2>
+    <p class="sub">One session = one stretch with the app in front</p>
+    <div class="dn" id="sessions" style="grid-template-columns:repeat(3,minmax(0,1fr))"></div>
+  </section>
+
+  <div class="row2">
+    <section class="card"><h2>Feature use</h2><p class="sub">Installs that did it at least once in the range</p><ul class="rank" id="events"></ul></section>
+    <section class="card"><h2>Screens</h2><p class="sub">Installs that opened each screen</p><ul class="rank" id="screens"></ul></section>
+  </div>
+
+  <div class="row3">
+    <section class="card"><h2>Current streak</h2><p class="sub">Installs active in the last 30 days</p><ul class="rank" id="streaks"></ul></section>
+    <section class="card"><h2>App version</h2><p class="sub">Active last 7 days, with OTA update</p><ul class="rank" id="versions"></ul></section>
+    <section class="card"><h2>Language</h2><p class="sub">Device locale</p><ul class="rank" id="locales"></ul></section>
+  </div>
+
+  <section class="card">
+    <h2>JavaScript errors</h2>
+    <p class="sub">Uncaught errors reported by the app</p>
+    <div class="tablewrap"><table id="errors"></table></div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const SUPABASE_URL = 'https://tegznesegnhlqjtiwdjn.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZ3puZXNlZ25obHFqdGl3ZGpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzNzQ0MjgsImV4cCI6MjEwODk1MDQyOH0.qWrpiGBBnfuHV3Eirr9G8RyZvKoXATshtyw-zesMVv4';
+  const KEY = 'qs-admin-token';
+  const DAYS_KEY = 'qs-analytics-days';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = (n) => (n ?? 0).toLocaleString();
+  const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+  const pctStr = (a, b) => (b ? `${pct(a, b)}%` : '–');
+
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+
+  const m = location.hash.match(/[#&]t=([^&]+)/);
+  if (m) { store.set(KEY, decodeURIComponent(m[1])); history.replaceState(null, '', location.pathname); }
+  let token = store.get(KEY);
+  let days = Number(store.get(DAYS_KEY)) || 30;
+
+  const NAMES = {
+    app_open: 'Opened the app', session_end: 'Session ended', screen: 'Viewed a screen', ayah_save: 'Liked / saved an ayah',
+    ayah_unsave: 'Unsaved an ayah', streak_day: 'Earned a streak day', daily_goal: 'Hit the 5-minute goal', plan_start: 'Started a reading plan',
+    plan_day: 'Finished a plan day', pro_active: 'Became Pro', pro_lapsed: 'Pro lapsed', onboarding_step: 'Onboarding screen',
+    onboarding_complete: 'Finished onboarding', theme_open: 'Opened a Discover theme', prayer_setup: 'Set up prayer times',
+    review_prompt: 'Saw the review prompt', setting: 'Changed a setting', share: 'Shared an ayah', why_ask: 'Asked "Why this ayah?"',
+    why_locked: 'Hit the "Why this ayah?" lock', why_error: '"Why this ayah?" failed', widget_open: 'Opened from the widget',
+    notification_open: 'Opened a notification', notif_permission: 'Answered notification prompt', att: 'Answered tracking prompt',
+    paywall_request: 'Paywall requested', paywall_result: 'Paywall closed', purchase: 'Purchase attempt', gift_shown: 'Saw the gift offer',
+    js_error: 'JavaScript error',
+  };
+  const STEPS = { hook: 'Hook', reader: 'Reader', plans: 'Plans', discover: 'Discover', search: 'Search', reviews: 'Reviews', addicted: 'Doom scrolling', features: 'Features', reminder: 'Trial reminder', trial: 'Trial offer' };
+
+  function showLock(msg) {
+    $('app').hidden = true; $('lock').hidden = false;
+    $('lock-err').textContent = msg || '';
+    $('token').focus();
+  }
+
+  async function fetchData() {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/app_analytics`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ p_token: token, p_days: days }),
+    });
+    if (res.status === 403 || res.status === 401) throw Object.assign(new Error('unauthorized'), { auth: true });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function rank(el, items, { label, value, total, sub } = {}) {
+    if (!items.length) { el.innerHTML = '<li class="empty">No data yet</li>'; return; }
+    const max = total ?? Math.max(...items.map(value), 1);
+    el.innerHTML = items.map((it) => {
+      const v = value(it);
+      return `<li><span class="lbl">${esc(label(it))}</span><span class="cnt num">${fmt(v)}${sub ? `<small>${esc(sub(it))}</small>` : ''}</span>
+        <span class="track"><span class="fill" style="width:${Math.max(2, (v / max) * 100)}%"></span></span></li>`;
+    }).join('');
+  }
+
+  function table(el, head, rows, empty = 'No data yet') {
+    el.innerHTML = rows.length
+      ? `<thead><tr>${head.map((h) => `<th class="${h.r ? 'r' : ''}">${esc(h.t)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody>`
+      : `<tbody><tr><td class="empty">${esc(empty)}</td></tr></tbody>`;
+  }
+
+  function chart(daily) {
+    const el = $('chart'), tip = $('tip');
+    el.querySelector('svg')?.remove();
+    const W = el.clientWidth || 600, H = el.clientHeight || 210, L = 30, B = 22, T = 6;
+    const max = Math.max(4, ...daily.map((d) => d.active));
+    const step = Math.pow(10, Math.floor(Math.log10(max))) * (max / Math.pow(10, Math.floor(Math.log10(max))) > 5 ? 2 : 1);
+    const top = Math.ceil(max / step) * step;
+    const y = (v) => T + (H - T - B) * (1 - v / top);
+    const cw = (W - L) / daily.length, bw = Math.max(2, Math.min(28, cw - 3));
+    const ns = 'http://www.w3.org/2000/svg';
+    let s = `<svg xmlns="${ns}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Daily active users">`;
+    for (let v = 0; v <= top; v += step) s += `<line class="gl" x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}"/><text class="al" x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    const every = Math.ceil(daily.length / (W < 520 ? 4 : 8));
+    daily.forEach((d, i) => {
+      const x = L + i * cw + (cw - bw) / 2;
+      const ret = d.returning, nw = d.active - d.returning;
+      const yR = y(ret), yA = y(d.active);
+      s += `<g class="col" data-i="${i}">`;
+      s += `<rect x="${L + i * cw}" y="${T}" width="${cw}" height="${H - T - B}" fill="transparent"/>`;
+      if (ret > 0) s += `<rect class="m" x="${x}" y="${yR}" width="${bw}" height="${y(0) - yR}" rx="${Math.min(4, bw / 2)}" fill="var(--s1)"/>`;
+      if (nw > 0) s += `<rect class="m" x="${x}" y="${yA}" width="${bw}" height="${Math.max(0, yR - yA - (ret > 0 ? 2 : 0))}" rx="${Math.min(4, bw / 2)}" fill="var(--s2)"/>`;
+      s += `</g>`;
+      if ((i % every === 0 && daily.length - 1 - i >= every / 2) || i === daily.length - 1) {
+        const dt = new Date(d.day + 'T12:00:00');
+        s += `<text class="al" x="${L + i * cw + cw / 2}" y="${H - 6}" text-anchor="middle">${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</text>`;
+      }
+    });
+    s += '</svg>';
+    el.insertAdjacentHTML('afterbegin', s);
+    el.querySelectorAll('g.col').forEach((g) => {
+      g.addEventListener('mouseenter', () => {
+        const d = daily[+g.dataset.i];
+        const dt = new Date(d.day + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+        tip.innerHTML = `<b>${dt}</b><br>${fmt(d.active)} active · ${fmt(d.returning)} returning · ${fmt(d.active - d.returning)} new${d.new !== d.active - d.returning ? `<br>${fmt(d.new)} first-day installs` : ''}`;
+        const r = g.getBoundingClientRect(), c = el.getBoundingClientRect();
+        tip.style.left = `${Math.min(Math.max(r.left - c.left + r.width / 2, 90), c.width - 90)}px`;
+        tip.style.top = `${y(d.active)}px`;
+        tip.style.opacity = 1;
+      });
+      g.addEventListener('mouseleave', () => { tip.style.opacity = 0; });
+    });
+  }
+
+  function render(d) {
+    const s = d.summary;
+    const when = new Date(d.generated_at).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    $('updated').textContent = `${fmt(s.installs)} installs tracked · updated ${when}`;
+
+    if (d.tracking_start) {
+      const start = new Date(d.tracking_start + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      $('note').hidden = false;
+      $('note').textContent = `Tracking started ${start}. An install appears once it opens a version with analytics, so anyone who stopped using the app before then is missing. ${fmt(s.estimated)} installs from before that date have their start day estimated from their streak history, which makes older cohorts look better than they were. Cohorts that started after tracking began are exact.`;
+    } else {
+      $('note').hidden = false;
+      $('note').textContent = 'No installs have reported yet. Data appears once people open the app version with analytics.';
+    }
+
+    const diff = s.dau - s.dau_yesterday;
+    $('t-dau').textContent = fmt(s.dau);
+    $('t-dau-s').innerHTML = `<span class="${diff >= 0 ? 'up' : 'down'}">${diff >= 0 ? '+' : ''}${fmt(diff)}</span> vs yesterday (${fmt(s.dau_yesterday)})`;
+    $('t-wau').textContent = fmt(s.wau);
+    $('t-wau-s').textContent = `${fmt(s.new_today)} new today`;
+    $('t-mau').textContent = fmt(s.mau);
+    $('t-mau-s').textContent = s.mau ? `Stickiness ${pctStr(s.dau, s.mau)} (today ÷ 30-day)` : ' ';
+    $('t-pro').textContent = fmt(s.pro);
+    $('t-pro-s').textContent = `${pctStr(s.pro, s.installs)} of installs · ${pctStr(s.onboarded, s.installs)} onboarded`;
+
+    chart(d.daily || []);
+
+    const dn = d.day_n || [];
+    $('dayn').innerHTML = [1, 3, 7, 14, 30].map((n) => {
+      const r = dn.find((x) => x.n === n);
+      return `<div><span>Day ${n}</span><b>${r ? pctStr(r.retained, r.eligible) : '–'}</b><span>${r ? `${fmt(r.retained)} of ${fmt(r.eligible)}` : 'not enough data'}</span></div>`;
+    }).join('');
+
+    const co = d.cohorts || [];
+    table($('cohorts'),
+      [{ t: 'Week of' }, { t: 'Installs', r: true }, ...Array.from({ length: 9 }, (_, k) => ({ t: k === 0 ? 'Wk 0' : `Wk ${k}` }))],
+      co.map((c) => {
+        const wk = new Date(c.week + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        const cells = c.weeks.map((v, k) => {
+          if (v === null) return '<td class="na">·</td>';
+          const p = pct(v, c.size);
+          const a = (0.08 + 0.8 * (p / 100)).toFixed(2);
+          return `<td class="heat num" title="${fmt(v)} of ${fmt(c.size)} active in week ${k}" style="background:rgba(var(--heat),${a});color:${p >= 55 ? '#fff' : 'var(--ink)'}">${p}%</td>`;
+        }).join('');
+        return `<tr><td>${wk}${c.estimated ? ` <span class="meta" title="${fmt(c.estimated)} start days estimated">*</span>` : ''}</td><td class="r num">${fmt(c.size)}</td>${cells}</tr>`;
+      }));
+
+    const steps = (d.onboarding || []).slice().sort((a, b) => a.idx - b.idx);
+    const first = steps[0]?.users || 0;
+    const funnel = steps.map((x) => ({ label: STEPS[x.step] || x.step, users: x.users }));
+    if (steps.length) funnel.push({ label: 'Finished onboarding', users: d.onboarding_done || 0 });
+    rank($('funnel'), funnel, { label: (x) => x.label, value: (x) => x.users, total: first || 1, sub: (x) => pctStr(x.users, first) });
+
+    const pw = d.paywall || [];
+    table($('paywall'), [{ t: 'Event' }, { t: 'Detail' }, { t: 'Installs', r: true }, { t: 'Times', r: true }],
+      pw.map((x) => `<tr><td>${esc(NAMES[x.name] || x.name)}</td><td>${esc(x.key || '–')}</td><td class="r num">${fmt(x.users)}</td><td class="r num">${fmt(x.count)}</td></tr>`),
+      'No paywall activity yet');
+
+    const se = d.sessions || {};
+    const mins = se.median_s == null ? '–' : se.median_s < 60 ? `${Math.round(se.median_s)}s` : `${(se.median_s / 60).toFixed(1)}m`;
+    $('sessions').innerHTML = `
+      <div><span>Median length</span><b>${mins}</b><span>${fmt(se.count)} sessions</span></div>
+      <div><span>Ayahs per session</span><b>${se.avg_ayahs ?? '–'}</b><span>average</span></div>
+      <div><span>Sessions per active day</span><b>${se.per_user_day ?? '–'}</b><span>per install</span></div>`;
+
+    const hidden = new Set(['screen', 'session_end', 'onboarding_step', 'app_open']);
+    rank($('events'), (d.events || []).filter((e) => !hidden.has(e.name)).slice(0, 20),
+      { label: (e) => NAMES[e.name] || e.name, value: (e) => e.users, total: Math.max(1, s.mau), sub: (e) => `${fmt(e.count)}×` });
+    rank($('screens'), (d.screens || []).slice(0, 15), { label: (x) => x.screen || '?', value: (x) => x.users, sub: (x) => `${fmt(x.views)} views` });
+    rank($('streaks'), d.streaks || [], { label: (x) => `${x.bucket} day${x.bucket === '1' ? '' : 's'}`, value: (x) => x.users });
+    rank($('versions'), d.versions || [], { label: (x) => x.version, value: (x) => x.users });
+    rank($('locales'), d.locales || [], { label: (x) => x.locale, value: (x) => x.users });
+
+    table($('errors'), [{ t: 'Message' }, { t: 'Installs', r: true }, { t: 'Times', r: true }, { t: 'Last seen' }],
+      (d.errors || []).map((e) => `<tr><td class="wrapc">${esc(e.message)}</td><td class="r num">${fmt(e.users)}</td><td class="r num">${fmt(e.count)}</td><td>${new Date(e.last).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</td></tr>`),
+      'No errors reported');
+  }
+
+  let last = null;
+  async function load() {
+    if (!token) return showLock();
+    try {
+      last = await fetchData();
+      $('lock').hidden = true; $('app').hidden = false;
+      render(last);
+    } catch (e) {
+      if (e.auth) { store.del(KEY); token = null; showLock('That token didn’t work.'); }
+      else $('updated').textContent = `Couldn’t load (${e.message}). Retrying…`;
+    }
+  }
+
+  document.querySelectorAll('.seg button').forEach((b) => {
+    b.setAttribute('aria-pressed', String(Number(b.dataset.days) === days));
+    b.addEventListener('click', () => {
+      days = Number(b.dataset.days); store.set(DAYS_KEY, String(days));
+      document.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      load();
+    });
+  });
+  $('unlock').addEventListener('submit', (e) => {
+    e.preventDefault();
+    token = $('token').value.trim(); store.set(KEY, token);
+    load();
+  });
+  $('refresh').addEventListener('click', load);
+  $('logout').addEventListener('click', () => { store.del(KEY); token = null; showLock(); });
+  let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => last && chart(last.daily || []), 150); });
+  setInterval(() => { if (token && !document.hidden) load(); }, 60_000);
+  load();
+})();
+</script>
+</body>
+</html>
