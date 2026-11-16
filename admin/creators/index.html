@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Creator Payouts</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F0; --surface: #FFFFFF; --surface2: #F3EEE2; --border: #E6DFCF;
+    --ink: #10231C; --ink2: #3C4F47; --ink3: #6F7F78;
+    --accent: #0F4C3A; --accentInk: #FFFFFF; --gold: #9A7A2E; --good: #1F7A55; --warn: #B04732;
+    --display: "Cormorant Garamond", Georgia, serif;
+    --body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0B1F19; --surface: #123129; --surface2: #173B31; --border: #1F4A3E;
+      --ink: #F3EEE2; --ink2: #C9D3CC; --ink3: #8CA096;
+      --accent: #C8A557; --accentInk: #07231B; --gold: #E3CC8E; --good: #7FC8A9; --warn: #E07A66;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 56px; }
+  button, input, select { font: inherit; color: inherit; }
+  .num { font-variant-numeric: tabular-nums; }
+  header { display: flex; align-items: center; gap: 12px; padding: 18px 0; flex-wrap: wrap; }
+  header h1 { font: 700 26px/1 var(--display); margin: 0; }
+  .meta { color: var(--ink3); font-size: 13px; }
+  .spacer { flex: 1; }
+  .btn { height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+  .btn:hover { background: var(--surface2); }
+  .btn.primary { background: var(--accent); color: var(--accentInk); border-color: transparent; }
+  .btn.small { height: 30px; padding: 0 10px; font-size: 13px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .seg button { height: 34px; padding: 0 12px; border: 0; background: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink2); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accentInk); }
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; }
+  .tile .k { font-size: 13px; color: var(--ink2); font-weight: 500; }
+  .tile .v { font: 700 30px/1.1 var(--body); margin-top: 6px; }
+  .tile .s { font-size: 12.5px; color: var(--ink3); margin-top: 2px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-top: 12px; }
+  .card h2 { font: 600 15px/1.3 var(--body); margin: 0; }
+  .card .sub { color: var(--ink3); font-size: 13px; margin: 2px 0 0; }
+  .tablewrap { overflow-x: auto; margin: 12px -18px -18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 12px; border-top: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { padding-left: 18px; }
+  th:last-child, td:last-child { padding-right: 18px; }
+  th { font-size: 11.5px; font-weight: 600; color: var(--ink3); text-transform: uppercase; letter-spacing: .06em; }
+  td.r, th.r { text-align: right; }
+  td .code { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; background: var(--surface2); padding: 2px 6px; border-radius: 6px; }
+  td .name { font-weight: 600; }
+  td .h { color: var(--ink3); font-size: 12.5px; }
+  .owed { font-weight: 700; color: var(--gold); }
+  .off { opacity: .5; }
+  .empty { color: var(--ink3); padding: 16px 18px; }
+  form.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 14px; align-items: end; }
+  form.grid label { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink2); font-weight: 500; }
+  form.grid input, form.grid select { height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); padding: 0 10px; min-width: 0; }
+  form.grid .wide { grid-column: span 2; }
+  .note { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; color: var(--ink2); margin-top: 12px; }
+  .note ol { margin: 6px 0 0; padding-left: 20px; }
+  .msg { font-size: 13px; margin-top: 8px; min-height: 1em; }
+  .lock { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+  .lock form { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 26px 22px; text-align: center; }
+  .lock h1 { font: 700 28px/1.1 var(--display); margin: 0 0 6px; }
+  .lock p { color: var(--ink2); margin: 0 0 18px; font-size: 14px; }
+  .lock input { width: 100%; height: 50px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); padding: 0 14px; font-size: 16px; }
+  .lock .btn { width: 100%; height: 50px; justify-content: center; margin-top: 10px; font-size: 16px; border-radius: 12px; }
+  .lock .err { color: var(--warn); font-size: 14px; margin: 10px 0 0; min-height: 1em; }
+  @media (max-width: 860px) {
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    form.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    header .spacer { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lock" id="lock" hidden>
+  <form id="unlock">
+    <h1>Creator payouts</h1>
+    <p>Enter your admin token. It stays on this device.</p>
+    <input id="token" type="password" autocomplete="current-password" placeholder="Admin token" aria-label="Admin token" required>
+    <button class="btn primary" type="submit">Unlock</button>
+    <p class="err" id="lock-err" role="alert"></p>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <div>
+      <h1>Creator payouts</h1>
+      <div class="meta" id="updated">Loading…</div>
+    </div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Period" id="period">
+      <button data-p="this" aria-pressed="true">This month</button>
+      <button data-p="last" aria-pressed="false">Last month</button>
+      <button data-p="all" aria-pressed="false">All time</button>
+    </div>
+    <a class="btn" href="../app/">Analytics</a>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Signups with a code</div><div class="v num" id="t-signups">–</div><div class="s" id="t-clicks">–</div></div>
+    <div class="tile"><div class="k">Paying customers</div><div class="v num" id="t-paying">–</div><div class="s" id="t-trials">–</div></div>
+    <div class="tile"><div class="k">Creator revenue (net)</div><div class="v num" id="t-proceeds">–</div><div class="s" id="t-gross">–</div></div>
+    <div class="tile"><div class="k">Owed to creators</div><div class="v num" id="t-owed">–</div><div class="s" id="t-earned">–</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Creators</h2>
+    <p class="sub">Commission = their rate × net proceeds (after Apple’s cut) from people who used their code, for the months after signup shown. Refunds subtract automatically. “Owed” is all-time earned minus paid.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Creator</th><th>Code / link</th><th class="r">Deal</th><th class="r">Visits</th><th class="r">Signups</th><th class="r">Trials</th><th class="r">Paying</th><th class="r">Revenue</th><th class="r">Net</th><th class="r">Earned</th><th class="r">Owed</th><th></th></tr></thead>
+      <tbody id="rows"><tr><td class="empty" colspan="12">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <h2 id="form-title">Add a creator</h2>
+    <p class="sub">The code is what their followers type in the app (letters, numbers, underscores). Their link is quranscrollapp.com/c/&lt;code&gt;.</p>
+    <form class="grid" id="add">
+      <label>Code<input name="code" required pattern="[A-Za-z0-9_]{2,24}" placeholder="ayahdaily" autocomplete="off"></label>
+      <label>Name<input name="name" required placeholder="Ayah Daily"></label>
+      <label>Handle<input name="handle" placeholder="@ayahdaily"></label>
+      <label>Platform<select name="platform"><option>instagram</option><option>tiktok</option><option>youtube</option><option>other</option></select></label>
+      <label>Rate %<input name="rate" type="number" min="0" max="100" step="1" value="30" required></label>
+      <label>Months<input name="months" type="number" min="1" max="120" value="12" required></label>
+      <label class="wide">Payout details<input name="payout_note" placeholder="PayPal / Wise email, bank, etc."></label>
+      <label><span>Active</span><select name="active"><option value="true">Yes</option><option value="false">Paused</option></select></label>
+      <div><button class="btn primary" type="submit" style="height:38px">Save creator</button></div>
+    </form>
+    <p class="msg" id="add-msg" role="status"></p>
+  </div>
+
+  <div class="card">
+    <h2>Payouts sent</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Date</th><th>Creator</th><th class="r">Amount</th><th>Period</th><th>Method</th><th>Note</th></tr></thead>
+      <tbody id="payouts"></tbody>
+    </table></div>
+  </div>
+
+  <div class="note">
+    <b>How a sale gets credited</b>
+    <ol>
+      <li>Someone types the code in onboarding (“How did you find Quran Scroll?”) or Menu → Creator code, or taps the creator’s link with the app installed. First code on a phone wins.</li>
+      <li>The app tags them in Superwall (<code>creator_code</code>). Every App Store purchase, renewal and refund comes back through the Superwall webhook with that tag.</li>
+      <li>Pay monthly: switch to <i>Last month</i>, pay each creator what they’re owed (Apple pays you about 30–45 days after the month), then press <i>Record payout</i>.</li>
+    </ol>
+    <span id="events-note"></span>
+  </div>
+</div>
+
+<script>
+(() => {
+  const SUPABASE_URL = 'https://tegznesegnhlqjtiwdjn.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZ3puZXNlZ25obHFqdGl3ZGpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzNzQ0MjgsImV4cCI6MjEwODk1MDQyOH0.qWrpiGBBnfuHV3Eirr9G8RyZvKoXATshtyw-zesMVv4';
+  const KEY = 'qs-admin-token';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const money = (n) => '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n) => Number(n || 0).toLocaleString();
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+  let token = store.get(KEY);
+  let period = 'this';
+  let data = null;
+
+  const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  function range() {
+    const now = new Date();
+    if (period === 'all') return { from: '2020-01-01', to: iso(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)), label: 'All time' };
+    const start = period === 'this' ? new Date(now.getFullYear(), now.getMonth(), 1) : new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const end = new Date(start.getFullYear(), start.getMonth() + 1, 1);
+    return { from: iso(start), to: iso(end), label: start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) };
+  }
+
+  async function rpc(fn, body) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ p_token: token, ...body }),
+    });
+    if (res.status === 401 || res.status === 403) throw Object.assign(new Error('unauthorized'), { auth: true });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) {
+      if (json && /unauthorized/.test(json.message || '')) throw Object.assign(new Error('unauthorized'), { auth: true });
+      throw new Error((json && json.message) || `HTTP ${res.status}`);
+    }
+    return json;
+  }
+
+  function showLock(msg) {
+    $('app').hidden = true; $('lock').hidden = false;
+    $('lock-err').textContent = msg || '';
+  }
+
+  async function load() {
+    const r = range();
+    $('updated').textContent = `${r.label} · loading…`;
+    try {
+      data = await rpc('creator_report', { p_from: r.from, p_to: r.to });
+    } catch (e) {
+      if (e.auth) { store.del(KEY); token = null; return showLock('That token didn’t work.'); }
+      $('updated').textContent = `Couldn’t load: ${e.message}`;
+      return;
+    }
+    $('lock').hidden = true; $('app').hidden = false;
+    render(r);
+  }
+
+  function render(r) {
+    const cs = data.creators || [];
+    const sum = (k) => cs.reduce((a, c) => a + Number(c[k] || 0), 0);
+    $('updated').textContent = `${r.label} · updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    $('t-signups').textContent = fmt(sum('signups'));
+    $('t-clicks').textContent = `${fmt(sum('clicks'))} link visits`;
+    $('t-paying').textContent = fmt(sum('paying'));
+    $('t-trials').textContent = `${fmt(sum('trials'))} trials started`;
+    $('t-proceeds').textContent = money(sum('proceeds'));
+    $('t-gross').textContent = `${money(sum('gross'))} gross · ${money(data.unattributed_proceeds)} net with no code`;
+    $('t-owed').textContent = money(sum('owed'));
+    $('t-earned').textContent = `${money(sum('earned'))} earned in ${period === 'all' ? 'total' : 'this period'}`;
+    $('rows').innerHTML = cs.length ? cs.map((c) => `
+      <tr class="${c.active ? '' : 'off'}">
+        <td><div class="name">${esc(c.name)}</div><div class="h">${esc(c.handle || '')} ${esc(c.platform)}</div></td>
+        <td><span class="code">${esc(c.code.toUpperCase())}</span><div class="h"><a href="/c/${encodeURIComponent(c.code)}" target="_blank" rel="noopener">quranscrollapp.com/c/${esc(c.code)}</a></div></td>
+        <td class="r num">${Math.round(c.rate * 100)}% · ${c.months} mo</td>
+        <td class="r num">${fmt(c.clicks)}</td>
+        <td class="r num">${fmt(c.signups)}<div class="h">${fmt(c.signups_all)} all time</div></td>
+        <td class="r num">${fmt(c.trials)}</td>
+        <td class="r num">${fmt(c.paying)}</td>
+        <td class="r num">${money(c.gross)}</td>
+        <td class="r num">${money(c.proceeds)}</td>
+        <td class="r num">${money(c.earned)}</td>
+        <td class="r num"><span class="owed">${money(c.owed)}</span><div class="h">${money(c.paid_all)} paid</div></td>
+        <td><button class="btn small" data-pay="${esc(c.code)}">Record payout</button> <button class="btn small" data-edit="${esc(c.code)}">Edit</button></td>
+      </tr>`).join('') : '<tr><td class="empty" colspan="12">No creators yet. Add the first one below.</td></tr>';
+    const ps = data.payouts || [];
+    $('payouts').innerHTML = ps.length ? ps.map((p) => `<tr><td>${esc(new Date(p.paid_at).toLocaleDateString())}</td><td>${esc(p.code)}</td><td class="r num">${money(p.amount)}</td><td>${esc(p.period || '')}</td><td>${esc(p.method || '')}</td><td>${esc(p.note || '')}</td></tr>`).join('')
+      : '<tr><td class="empty" colspan="6">No payouts recorded yet.</td></tr>';
+    $('events-note').textContent = data.events ? `${fmt(data.events)} App Store events received from Superwall so far.` : 'No App Store events received yet: check the Superwall webhook is set up.';
+  }
+
+  $('rows').addEventListener('click', async (e) => {
+    const pay = e.target.closest('[data-pay]');
+    const edit = e.target.closest('[data-edit]');
+    if (edit) {
+      const c = data.creators.find((x) => x.code === edit.dataset.edit);
+      const f = $('add');
+      f.code.value = c.code; f.name.value = c.name; f.handle.value = c.handle || ''; f.platform.value = c.platform;
+      f.rate.value = Math.round(c.rate * 100); f.months.value = c.months; f.payout_note.value = c.payout_note || ''; f.active.value = String(c.active);
+      $('form-title').textContent = `Edit ${c.name}`;
+      f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (!pay) return;
+    const c = data.creators.find((x) => x.code === pay.dataset.pay);
+    const amount = prompt(`Amount paid to ${c.name} (USD)${c.payout_note ? `\nPayout details: ${c.payout_note}` : ''}`, Math.max(0, c.owed).toFixed(2));
+    if (amount === null) return;
+    const n = Number(amount);
+    if (!(n > 0)) return alert('Enter an amount above 0.');
+    const method = prompt('How was it paid? (PayPal, Wise, bank…)', '') ?? '';
+    try {
+      await rpc('creator_record_payout', { p_code: c.code, p_amount: n, p_period: range().label, p_method: method || null, p_note: null });
+      load();
+    } catch (err) { alert(`Couldn’t record it: ${err.message}`); }
+  });
+
+  $('add').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    $('add-msg').textContent = 'Saving…';
+    try {
+      await rpc('creator_upsert', {
+        p_code: f.code.value.trim().toLowerCase(), p_name: f.name.value.trim(), p_handle: f.handle.value.trim() || null,
+        p_platform: f.platform.value, p_rate: Number(f.rate.value) / 100, p_months: Number(f.months.value),
+        p_active: f.active.value === 'true', p_payout_note: f.payout_note.value.trim() || null,
+      });
+      $('add-msg').textContent = `Saved. Their link: quranscrollapp.com/c/${f.code.value.trim().toLowerCase()}`;
+      $('form-title').textContent = 'Add a creator';
+      f.reset();
+      load();
+    } catch (err) { $('add-msg').textContent = `Couldn’t save: ${err.message}`; }
+  });
+
+  $('period').addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-p]');
+    if (!b) return;
+    period = b.dataset.p;
+    for (const x of $('period').querySelectorAll('button')) x.setAttribute('aria-pressed', String(x === b));
+    load();
+  });
+
+  $('unlock').addEventListener('submit', (e) => {
+    e.preventDefault();
+    token = $('token').value.trim();
+    store.set(KEY, token);
+    load();
+  });
+
+  if (token) load(); else showLock();
+})();
+</script>
+</body>
+</html>
