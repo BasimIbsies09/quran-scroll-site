@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Sadaqah Giving</title>
+<link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F0; --surface: #FFFFFF; --surface2: #F3EEE2; --border: #E6DFCF;
+    --ink: #10231C; --ink2: #3C4F47; --ink3: #6F7F78;
+    --accent: #0F4C3A; --accentInk: #FFFFFF; --gold: #9A7A2E; --good: #1F7A55; --warn: #B04732;
+    --display: "Cormorant Garamond", Georgia, serif;
+    --body: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0B1F19; --surface: #123129; --surface2: #173B31; --border: #1F4A3E;
+      --ink: #F3EEE2; --ink2: #C9D3CC; --ink3: #8CA096;
+      --accent: #C8A557; --accentInk: #07231B; --gold: #E3CC8E; --good: #7FC8A9; --warn: #E07A66;
+    }
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--body); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px 56px; }
+  button, input, select { font: inherit; color: inherit; }
+  .num { font-variant-numeric: tabular-nums; }
+  header { display: flex; align-items: center; gap: 12px; padding: 18px 0; flex-wrap: wrap; }
+  header h1 { font: 700 26px/1 var(--display); margin: 0; }
+  .meta { color: var(--ink3); font-size: 13px; }
+  .spacer { flex: 1; }
+  .btn { height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; }
+  .btn:hover { background: var(--surface2); }
+  .btn.primary { background: var(--accent); color: var(--accentInk); border-color: transparent; }
+  .btn.small { height: 30px; padding: 0 10px; font-size: 13px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+  .seg button { height: 34px; padding: 0 12px; border: 0; background: none; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--ink2); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accentInk); }
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 18px; }
+  .tile .k { font-size: 13px; color: var(--ink2); font-weight: 500; }
+  .tile .v { font: 700 30px/1.1 var(--body); margin-top: 6px; }
+  .tile .s { font-size: 12.5px; color: var(--ink3); margin-top: 2px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-top: 12px; }
+  .card h2 { font: 600 15px/1.3 var(--body); margin: 0; }
+  .card .sub { color: var(--ink3); font-size: 13px; margin: 2px 0 0; }
+  .tablewrap { overflow-x: auto; margin: 12px -18px -18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 12px; border-top: 1px solid var(--border); white-space: nowrap; }
+  th:first-child, td:first-child { padding-left: 18px; }
+  th:last-child, td:last-child { padding-right: 18px; }
+  th { font-size: 11.5px; font-weight: 600; color: var(--ink3); text-transform: uppercase; letter-spacing: .06em; }
+  td.r, th.r { text-align: right; }
+  td .code { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; background: var(--surface2); padding: 2px 6px; border-radius: 6px; }
+  td .name { font-weight: 600; }
+  td .h { color: var(--ink3); font-size: 12.5px; }
+  .owed { font-weight: 700; color: var(--gold); }
+  .off { opacity: .5; }
+  .empty { color: var(--ink3); padding: 16px 18px; }
+  form.grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 14px; align-items: end; }
+  form.grid label { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink2); font-weight: 500; }
+  form.grid input, form.grid select { height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); padding: 0 10px; min-width: 0; }
+  form.grid .wide { grid-column: span 2; }
+  .note { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; color: var(--ink2); margin-top: 12px; }
+  .note ol { margin: 6px 0 0; padding-left: 20px; }
+  .msg { font-size: 13px; margin-top: 8px; min-height: 1em; }
+  .lock { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+  .lock form { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 26px 22px; text-align: center; }
+  .lock h1 { font: 700 28px/1.1 var(--display); margin: 0 0 6px; }
+  .lock p { color: var(--ink2); margin: 0 0 18px; font-size: 14px; }
+  .lock input { width: 100%; height: 50px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); padding: 0 14px; font-size: 16px; }
+  .lock .btn { width: 100%; height: 50px; justify-content: center; margin-top: 10px; font-size: 16px; border-radius: 12px; }
+  .lock .err { color: var(--warn); font-size: 14px; margin: 10px 0 0; min-height: 1em; }
+  @media (max-width: 860px) {
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    form.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    header .spacer { display: none; }
+  }
+  .tiles.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .bar { height: 6px; border-radius: 3px; background: var(--surface2); overflow: hidden; margin-top: 4px; width: 120px; }
+  .bar i { display: block; height: 100%; background: var(--gold); }
+  .votes { display: grid; gap: 4px; }
+  .confirm { color: var(--warn); }
+  @media (max-width: 860px) { .tiles.three { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="lock" id="lock" hidden>
+  <form id="unlock">
+    <h1>Sadaqah giving</h1>
+    <p>Enter your admin token. It stays on this device.</p>
+    <input id="token" type="password" autocomplete="current-password" placeholder="Admin token" aria-label="Admin token" required>
+    <button class="btn primary" type="submit">Unlock</button>
+    <p class="err" id="lock-err" role="alert"></p>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <header>
+    <div>
+      <h1>Sadaqah giving</h1>
+      <div class="meta" id="updated">Loading…</div>
+    </div>
+    <span class="spacer"></span>
+    <a class="btn" href="/giving/" target="_blank" rel="noopener">Public page</a>
+    <a class="btn" href="../creators/">Creators</a>
+    <a class="btn" href="../app/">Analytics</a>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><div class="k">Set aside (all time)</div><div class="v num" id="t-set">–</div><div class="s" id="t-share">–</div></div>
+    <div class="tile"><div class="k">Donated (public total)</div><div class="v num" id="t-donated">–</div><div class="s" id="t-goal">–</div></div>
+    <div class="tile"><div class="k">Still to donate</div><div class="v num" id="t-owed">–</div><div class="s">Finished months, set aside minus donated</div></div>
+    <div class="tile"><div class="k">This month’s vote</div><div class="v" id="t-lead" style="font-size:22px">–</div><div class="s" id="t-voters">–</div></div>
+  </div>
+
+  <div class="card">
+    <h2>By month</h2>
+    <p class="sub">Set aside = net proceeds (after Apple’s cut, refunds included) × your private share. Only Pro votes count. Apple pays about 30–45 days after a month ends, so donate a month once that money has arrived.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Month</th><th class="r">Net proceeds</th><th class="r">Set aside</th><th class="r">Donated</th><th class="r">Still to donate</th><th>Pro votes</th><th></th></tr></thead>
+      <tbody id="months"><tr><td class="empty" colspan="7">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <div class="card" id="donate-card">
+    <h2>Record a donation</h2>
+    <p class="sub">This shows in the app’s Give tab and on quranscrollapp.com/giving. Use a public link to the receipt (for example a Google Drive or Every.org link), or leave it empty.</p>
+    <form class="grid" id="donate">
+      <label>Month<input name="month" type="month" required></label>
+      <label>Cause<select name="cause" id="cause-select"></select></label>
+      <label>Amount (USD)<input name="amount" type="number" min="0.01" step="0.01" required></label>
+      <label class="wide">Charity<input name="charity" required placeholder="Islamic Relief USA"></label>
+      <label>Date given<input name="date" type="date"></label>
+      <label class="wide">Receipt link<input name="receipt" type="url" placeholder="https://…"></label>
+      <label class="wide">Note (shown publicly)<input name="note" placeholder="2 water wells in Malawi"></label>
+      <div><button class="btn primary" type="submit" style="height:38px">Record donation</button></div>
+    </form>
+    <p class="msg" id="donate-msg" role="status"></p>
+  </div>
+
+  <div class="card">
+    <h2>Donations</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Given</th><th>Month</th><th>Cause</th><th>Charity</th><th class="r">Amount</th><th>Receipt</th><th>Note</th><th></th></tr></thead>
+      <tbody id="donations"></tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <h2>Causes</h2>
+    <p class="sub">What people vote on. Add a charity name and link only once that charity has agreed; the link becomes a “Give directly” button that opens in Safari.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Cause</th><th>Charity</th><th>Order</th><th>Shown</th><th></th></tr></thead>
+      <tbody id="causes"></tbody>
+    </table></div>
+    <form class="grid" id="cause-form">
+      <label>Id<input name="id" required pattern="[a-z0-9_]{2,24}" placeholder="water" autocomplete="off"></label>
+      <label>Title<input name="title" required placeholder="Water wells"></label>
+      <label>Icon<select name="icon"><option>water</option><option>food</option><option>orphans</option><option>relief</option><option>heart</option></select></label>
+      <label class="wide">Description<input name="blurb" required></label>
+      <label>Order<input name="sort" type="number" value="5"></label>
+      <label class="wide">Charity name<input name="charity_name" placeholder="Optional"></label>
+      <label class="wide">Charity donation link<input name="charity_url" type="url" placeholder="https://… (optional)"></label>
+      <label>Shown<select name="active"><option value="true">Yes</option><option value="false">Hidden</option></select></label>
+      <div><button class="btn primary" type="submit" style="height:38px">Save cause</button></div>
+    </form>
+    <p class="msg" id="cause-msg" role="status"></p>
+  </div>
+
+  <div class="card">
+    <h2>Goal and private share</h2>
+    <p class="sub">The goal and milestone are public. The share never leaves this page.</p>
+    <form class="grid" id="settings">
+      <label>Goal (USD)<input name="goal" type="number" min="1" step="1" required></label>
+      <label>Next milestone (USD)<input name="milestone" type="number" min="0" step="1" required></label>
+      <label class="wide">Milestone label<input name="label" required placeholder="by Ramadan"></label>
+      <label>Share of proceeds %<input name="share" type="number" min="0" max="100" step="0.5" required></label>
+      <div><button class="btn primary" type="submit" style="height:38px">Save</button></div>
+    </form>
+    <p class="msg" id="settings-msg" role="status"></p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const SUPABASE_URL = 'https://tegznesegnhlqjtiwdjn.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRlZ3puZXNlZ25obHFqdGl3ZGpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzNzQ0MjgsImV4cCI6MjEwODk1MDQyOH0.qWrpiGBBnfuHV3Eirr9G8RyZvKoXATshtyw-zesMVv4';
+  const KEY = 'qs-admin-token';
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const money = (n) => '$' + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+  const monthName = (m) => { const [y, mo] = String(m).split('-').map(Number); return new Date(Date.UTC(y, mo - 1, 1)).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }); };
+  const thisMonth = () => { const d = new Date(); return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-01`; };
+  let token = store.get(KEY);
+  let data = null;
+  let confirmId = null;
+
+  async function rpc(fn, body) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ p_token: token, ...body }),
+    });
+    if (res.status === 401 || res.status === 403) throw Object.assign(new Error('unauthorized'), { auth: true });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) {
+      if (json && /unauthorized/.test(json.message || '')) throw Object.assign(new Error('unauthorized'), { auth: true });
+      throw new Error((json && json.message) || `HTTP ${res.status}`);
+    }
+    if (json && json.ok === false) throw new Error(json.error || 'Not saved');
+    return json;
+  }
+
+  function showLock(msg) { $('app').hidden = true; $('lock').hidden = false; $('lock-err').textContent = msg || ''; }
+
+  async function load() {
+    try { data = await rpc('giving_admin', {}); }
+    catch (e) {
+      if (e.auth) { store.del(KEY); token = null; return showLock('That token didn’t work.'); }
+      $('updated').textContent = `Couldn’t load: ${e.message}`; return;
+    }
+    $('lock').hidden = true; $('app').hidden = false;
+    render();
+  }
+
+  const causeTitle = (id) => (data.causes.find((c) => c.id === id) || {}).title || id || '';
+
+  function render() {
+    const s = data.settings;
+    const cur = thisMonth();
+    $('updated').textContent = `Updated ${new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    $('t-set').textContent = money(data.total_set_aside);
+    $('t-share').textContent = `${Number(s.share) * 100}% of net proceeds (private)`;
+    $('t-donated').textContent = money(data.total_donated);
+    $('t-goal').textContent = `${Math.round((data.total_donated / s.goal) * 1000) / 10}% of the ${money(s.goal).replace('.00', '')} goal`;
+    const owed = data.months.filter((m) => m.month < cur).reduce((a, m) => a + Number(m.owed || 0), 0);
+    $('t-owed').textContent = money(owed);
+    const now = data.months.find((m) => m.month === cur);
+    const votes = (now && now.votes) || [];
+    const pro = votes.reduce((a, v) => a + Number(v.pro || 0), 0);
+    const lead = votes.slice().sort((a, b) => b.pro - a.pro)[0];
+    $('t-lead').textContent = lead && lead.pro ? causeTitle(lead.cause) : 'No votes yet';
+    $('t-voters').textContent = `${pro} Pro vote${pro === 1 ? '' : 's'} · ${votes.reduce((a, v) => a + Number(v.all || 0), 0)} picks in all`;
+
+    $('months').innerHTML = data.months.length ? data.months.map((m) => {
+      const vs = (m.votes || []).filter((v) => v.pro > 0);
+      const tot = vs.reduce((a, v) => a + Number(v.pro), 0);
+      const vh = tot ? `<div class="votes">${vs.map((v) => `<div>${esc(causeTitle(v.cause))} · ${v.pro} (${Math.round((v.pro / tot) * 100)}%)<div class="bar"><i style="width:${(v.pro / tot) * 100}%"></i></div></div>`).join('')}</div>` : '<span class="h">No Pro votes</span>';
+      return `<tr><td><b>${esc(monthName(m.month))}</b>${m.month === cur ? ' <span class="h">in progress</span>' : ''}</td>
+        <td class="r num">${money(m.proceeds)}</td><td class="r num">${money(m.set_aside)}</td><td class="r num">${money(m.donated)}</td>
+        <td class="r num"><span class="owed">${money(m.owed)}</span></td><td>${vh}</td>
+        <td>${m.month < cur ? `<button class="btn small" data-give="${esc(m.month)}">Record donation</button>` : ''}</td></tr>`;
+    }).join('') : '<tr><td class="empty" colspan="7">No months yet.</td></tr>';
+
+    $('cause-select').innerHTML = '<option value="">Split / none</option>' + data.causes.map((c) => `<option value="${esc(c.id)}">${esc(c.title)}</option>`).join('');
+
+    const ds = data.donations || [];
+    $('donations').innerHTML = ds.length ? ds.map((d) => `<tr><td>${esc(d.donated_at)}</td><td>${esc(monthName(d.month))}</td><td>${esc(causeTitle(d.cause_id))}</td><td>${esc(d.charity_name)}</td>
+      <td class="r num">${money(d.amount)}</td><td>${d.receipt_url ? `<a href="${esc(d.receipt_url)}" target="_blank" rel="noopener">Open</a>` : '<span class="h">none</span>'}</td><td>${esc(d.note || '')}</td>
+      <td><button class="btn small ${confirmId === d.id ? 'confirm' : ''}" data-del="${d.id}">${confirmId === d.id ? 'Click again to delete' : 'Delete'}</button></td></tr>`).join('')
+      : '<tr><td class="empty" colspan="8">No donations recorded yet.</td></tr>';
+
+    $('causes').innerHTML = data.causes.map((c) => `<tr class="${c.active ? '' : 'off'}"><td><b>${esc(c.title)}</b><div class="h">${esc(c.id)} · ${esc(c.blurb)}</div></td>
+      <td>${c.charity_name ? esc(c.charity_name) : '<span class="h">Not named yet</span>'}${c.charity_url ? `<div class="h"><a href="${esc(c.charity_url)}" target="_blank" rel="noopener">donation link</a></div>` : ''}</td>
+      <td class="num">${c.sort}</td><td>${c.active ? 'Yes' : 'Hidden'}</td><td><button class="btn small" data-edit="${esc(c.id)}">Edit</button></td></tr>`).join('');
+
+    const f = $('settings');
+    if (!f.dataset.filled) {
+      f.goal.value = s.goal; f.milestone.value = s.milestone; f.label.value = s.milestone_label; f.share.value = Number(s.share) * 100;
+      f.dataset.filled = '1';
+    }
+  }
+
+  document.addEventListener('click', async (e) => {
+    const give = e.target.closest('[data-give]');
+    const del = e.target.closest('[data-del]');
+    const edit = e.target.closest('[data-edit]');
+    if (give) {
+      const m = data.months.find((x) => x.month === give.dataset.give);
+      const f = $('donate');
+      f.month.value = m.month.slice(0, 7);
+      f.amount.value = Number(m.owed || 0).toFixed(2);
+      const lead = (m.votes || []).slice().sort((a, b) => b.pro - a.pro)[0];
+      if (lead && lead.pro) f.cause.value = lead.cause;
+      f.date.value = new Date().toISOString().slice(0, 10);
+      $('donate-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      f.charity.focus();
+    } else if (del) {
+      const id = Number(del.dataset.del);
+      if (confirmId !== id) { confirmId = id; render(); return; }
+      confirmId = null;
+      try { await rpc('giving_delete_donation', { p_id: id }); load(); } catch (err) { $('donate-msg').textContent = `Couldn’t delete: ${err.message}`; }
+    } else if (edit) {
+      const c = data.causes.find((x) => x.id === edit.dataset.edit);
+      const f = $('cause-form');
+      f.id.value = c.id; f.title.value = c.title; f.icon.value = c.icon; f.blurb.value = c.blurb; f.sort.value = c.sort;
+      f.charity_name.value = c.charity_name || ''; f.charity_url.value = c.charity_url || ''; f.active.value = String(c.active);
+      f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else if (confirmId !== null && !e.target.closest('[data-del]')) {
+      confirmId = null; render();
+    }
+  });
+
+  $('donate').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    $('donate-msg').textContent = 'Saving…';
+    try {
+      await rpc('giving_record_donation', {
+        p_month: `${f.month.value}-01`, p_cause: f.cause.value || null, p_amount: Number(f.amount.value), p_charity_name: f.charity.value.trim(),
+        p_receipt_url: f.receipt.value.trim() || null, p_note: f.note.value.trim() || null, p_donated_at: f.date.value || null,
+      });
+      $('donate-msg').textContent = 'Recorded. It’s live in the app and on the public page.';
+      f.reset(); load();
+    } catch (err) { $('donate-msg').textContent = `Couldn’t save: ${err.message}`; }
+  });
+
+  $('cause-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    $('cause-msg').textContent = 'Saving…';
+    try {
+      await rpc('giving_cause_upsert', {
+        p_id: f.id.value.trim().toLowerCase(), p_title: f.title.value.trim(), p_blurb: f.blurb.value.trim(), p_icon: f.icon.value,
+        p_charity_name: f.charity_name.value.trim() || null, p_charity_url: f.charity_url.value.trim() || null,
+        p_sort: Number(f.sort.value) || 0, p_active: f.active.value === 'true',
+      });
+      $('cause-msg').textContent = 'Saved.'; f.reset(); load();
+    } catch (err) { $('cause-msg').textContent = `Couldn’t save: ${err.message}`; }
+  });
+
+  $('settings').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    $('settings-msg').textContent = 'Saving…';
+    try {
+      await rpc('giving_settings_update', { p_goal: Number(f.goal.value), p_milestone: Number(f.milestone.value), p_milestone_label: f.label.value.trim(), p_share: Number(f.share.value) / 100 });
+      $('settings-msg').textContent = 'Saved.'; load();
+    } catch (err) { $('settings-msg').textContent = `Couldn’t save: ${err.message}`; }
+  });
+
+  $('unlock').addEventListener('submit', (e) => { e.preventDefault(); token = $('token').value.trim(); store.set(KEY, token); load(); });
+
+  if (token) load(); else showLock();
+})();
+</script>
+</body>
+</html>
