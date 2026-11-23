@@ -269,3 +269,10 @@ p { margin: 0 0 14px; }
 }
 
 #out { scroll-margin-top: 90px; }
+
+/* Share and Save to Photos (ayah pages): small glass pills under the ayah */
+.qs-share { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0 0; }
+.qs-sb { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; font: 700 14px/1 var(--body); color: var(--frame-ink); cursor: pointer;
+  background: var(--glass); border: 1px solid var(--glass-rim); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); -webkit-tap-highlight-color: transparent; transition: transform .15s, filter .15s; }
+.qs-sb:hover { filter: brightness(1.08); }
+.qs-sb:active { transform: scale(.97); }

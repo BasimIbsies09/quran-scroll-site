@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/site.css?v=cf5767a9">
+<link rel="stylesheet" href="/assets/site.css?v=c431b1f6">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Quran","item":"https://quranscrollapp.com/quran/"},{"@type":"ListItem","position":2,"name":"Surah At-Tawbah","item":"https://quranscrollapp.com/quran/at-tawbah/"},{"@type":"ListItem","position":3,"name":"Ayah 119","item":"https://quranscrollapp.com/quran/at-tawbah/119/"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Quotation","name":"Quran 9:119","text":"O you who have believed, fear Allah and be with those who are true.","inLanguage":"en","isPartOf":{"@type":"Book","name":"The Quran"},"url":"https://quranscrollapp.com/quran/at-tawbah/119/"}</script>
 
@@ -56,10 +56,10 @@
   <p class="tr">Yaaa aiyuhal lazeena aamanut taqul laaha wa koonoo ma'as saadiqeen</p>
   <p class="en big">O you who have believed, fear Allah and be with those who are true.</p>
   <p class="src">At-Tawbah 9:119 · Saheeh International</p>
-</div>
+  <div class="qs-share on-page"><button type="button" class="qs-sb" data-share data-url="https://quranscrollapp.com/a/9/119/" data-img="https://tegznesegnhlqjtiwdjn.supabase.co/storage/v1/object/public/cards/ayah/9-119.jpg" data-name="quran-scroll-9-119.jpg" data-title="At-Tawbah 9:119"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span>Share</span></button><button type="button" class="qs-sb" data-save data-url="https://quranscrollapp.com/a/9/119/" data-img="https://tegznesegnhlqjtiwdjn.supabase.co/storage/v1/object/public/cards/ayah/9-119.jpg" data-name="quran-scroll-9-119.jpg" data-title="At-Tawbah 9:119"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg><span>Save to Photos</span></button></div>
 </div></div>
 <main class="wrap">
-<section>
+</div><section>
   <h2>When this ayah speaks to you</h2>
   <div class="topic-why"><a href="/quran-verses-about/honesty/">Quran verses about honesty</a><p>This ayah calls you to keep the company of the truthful. Surrounding yourself with honest people can support the honest life you want.</p></div>
 </section><aside class="cta frame">
@@ -109,7 +109,13 @@
     <p class="credits">Arabic text: Tanzil Project (tanzil.net), Uthmani script. English translation: Saheeh International. Transliteration for guidance only. © 2026 Quran Scroll.</p>
   </div>
 </footer>
-
+<script>(function(){var files={};function get(b){var k=b.dataset.img;if(!files[k])files[k]=fetch(k).then(function(r){return r.blob()}).then(function(bl){return new File([bl],b.dataset.name,{type:'image/jpeg'})});return files[k]}
+document.querySelectorAll('[data-save]').forEach(function(b){get(b).then(function(f){b._file=f}).catch(function(){})});
+function flash(b,t){var s=b.querySelector('span'),o=s.textContent;s.textContent=t;setTimeout(function(){s.textContent=o},1800)}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-share],[data-save]');if(!b)return;e.preventDefault();
+if(b.hasAttribute('data-share')){if(navigator.share){navigator.share({title:b.dataset.title,url:b.dataset.url}).catch(function(){})}else if(navigator.clipboard){navigator.clipboard.writeText(b.dataset.url).then(function(){flash(b,'Link copied')},function(){prompt('Copy this link',b.dataset.url)})}else{prompt('Copy this link',b.dataset.url)}return}
+var f=b._file;if(f&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}
+get(b).then(function(f){var u=URL.createObjectURL(f),a=document.createElement('a');a.href=u;a.download=b.dataset.name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000);flash(b,'Saved')}).catch(function(){window.open(b.dataset.img,'_blank')})},true)})();</script>
 <script>(function(){var h=location.hostname;if(h!=='quranscrollapp.com'&&h!=='www.quranscrollapp.com')return;var u="https://tegznesegnhlqjtiwdjn.supabase.co/functions/v1/site-event";function s(k){try{var b=new Blob([JSON.stringify({p:location.pathname,k:k})],{type:'text/plain'});if(!navigator.sendBeacon||!navigator.sendBeacon(u,b))fetch(u,{method:'POST',body:b,keepalive:true})}catch(e){}}s('view');document.addEventListener('click',function(e){var a=e.target&&e.target.closest&&e.target.closest('a[data-app]');if(a)s('app')},true)})();</script>
 </body>
 </html>
